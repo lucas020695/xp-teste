@@ -162,25 +162,37 @@ app.layout = html.Div(style={"background": C["bg"], "minHeight": "100vh", "paddi
 def cb_upload(contents, filename):
     if not contents:
         return dash.no_update, "Nenhum arquivo."
+
     raw = base64.b64decode(contents.split(",", 1)[1])
+
     with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as f:
         f.write(raw)
         tmp_path = f.name
 
-    parsed = extract_pdf(tmp_path)
+    try:
+        parsed = extract_pdf(tmp_path)
+    except Exception as e:
+        return None, html.Div([
+            html.P(f"❌ Erro ao processar {filename}", style={"color": "#a12c7b", "fontWeight": "600"}),
+            html.Pre(str(e), style={"whiteSpace": "pre-wrap"})
+        ])
+
     assets = parsed["assets"]
 
-    warnings_html = []
-    for w in parsed["parse_warnings"]:
-        warnings_html.append(html.P(f"⚠️ {w}", style={"color": C["warning"]}))
+    warnings_html = [
+        html.P(f"⚠️ {w}", style={"color": "#964219"})
+        for w in parsed["parse_warnings"]
+    ]
 
     status = html.Div([
-        html.P(f"✅ {filename} carregado com sucesso!",
-               style={"color": C["success"], "fontWeight": "600"}),
-        html.P(f"Data referência: {parsed['ref_date']} | Ativos: {len(assets)} | "
-               f"Saldo total: R$ {assets['saldo_bruto'].sum():,.2f} | "
-               f"Método: {parsed['extraction_method']}",
-               style={"color": C["muted"]}),
+        html.P(f"✅ {filename} carregado com sucesso!", style={"color": "#437a22", "fontWeight": "600"}),
+        html.P(
+            f"Data referência: {parsed['ref_date']} | "
+            f"Ativos: {len(assets)} | "
+            f"Saldo total: R$ {assets['saldo_bruto'].sum():,.2f} | "
+            f"Método: {parsed['extraction_method']}",
+            style={"color": "#7a7974"},
+        ),
         *warnings_html,
     ])
 
