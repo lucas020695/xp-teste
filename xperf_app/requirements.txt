@@ -7,3 +7,6 @@ requests>=2.31.0
 pytesseract>=0.3.10
 pdf2image>=1.17.0
 Pillow>=10.0.0
+fitz
+PyMuPDF>=1.23.0
+gunicorn>=21.0.0
