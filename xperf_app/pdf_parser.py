@@ -5,6 +5,10 @@ import re
 from datetime import date, datetime
 from pathlib import Path
 from typing import Any
+import pymupdf
+
+doc = pymupdf.open(pdf_path)
+pages = [page.get_text("text") for page in doc]
 
 import pandas as pd
 
